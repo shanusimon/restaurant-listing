@@ -35,6 +35,7 @@ export const getAllRestaurant = async (
   res: Response
 ): Promise<void> => {
   try {
+    console.log("hello APIII")
     const restaurants = await restaurantModel.find();
     res.status(200).json({
       message: "Restaurants fetched successfully",
