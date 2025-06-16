@@ -8,11 +8,15 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
+const ALLOWED_URL = process.env.CORS
+
+console.log(PORT,ALLOWED_URL);
+
 
 connectDB();
 
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: ALLOWED_URL, 
 }));
 
 
