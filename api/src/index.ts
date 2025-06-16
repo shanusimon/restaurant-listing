@@ -1,10 +1,17 @@
-import express from "express";
+
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import connectDB from "./config/db";
 import restaurantRoutes from "./routes/restaurant.routes";
 import cors from "cors";
 
-dotenv.config();
+console.log("ENV CHECK:", {
+  PORT: process.env.PORT,
+  CORS: process.env.CORS,
+  MONGO_URL: process.env.MONGO_URL
+});
+
 
 const app = express();
 const PORT = process.env.PORT;
