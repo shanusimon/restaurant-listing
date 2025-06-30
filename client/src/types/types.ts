@@ -13,3 +13,17 @@ export interface Restaurant {
     email?: string;
   };
 }
+
+export interface RestaurantCardProps {
+  restaurant: Restaurant;
+  onEdit: (restaurant: Restaurant) => void;
+  onDelete: (id: string) => void;
+}
+
+
+export interface ModalProps {
+  modalClose: () => void;
+  onAddRestaurant: (restaurant: Omit<Restaurant, '_id'>) => Promise<void>;
+  onUpdateRestaurant: (restaurant: Omit<Restaurant, '_id'>) => Promise<void>;
+  editingRestaurant?: Restaurant | null;
+}

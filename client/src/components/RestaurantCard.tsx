@@ -1,11 +1,5 @@
 import { Mail, Edit, MapPin, Trash, Phone } from 'lucide-react';
-import type { Restaurant } from '../types/types';
-
-interface RestaurantCardProps {
-  restaurant: Restaurant;
-  onEdit: (restaurant: Restaurant) => void;
-  onDelete: (id: string) => void;
-}
+import type { RestaurantCardProps } from '../types/types';
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, onEdit, onDelete }) => {
   return (

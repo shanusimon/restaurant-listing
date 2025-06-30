@@ -1,12 +1,16 @@
 import { Plus, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
-import axios from 'axios';
 import RestaurantCard from '../components/RestaurantCard';
 import RestaurantModal from '../components/RestaurantModal';
 import type { Restaurant } from '../types/types';
+import {
+  fetchRestaurants as fetchRestaurantsApi,
+  addRestaurant,
+  updateRestaurant,
+  deleteRestaurant,
+} from  "../services/apiServices"
 
-const API_ROUTE = import.meta.env.VITE_API_ROUTE;
 
 const RestaurantManager: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -17,28 +21,9 @@ const RestaurantManager: React.FC = () => {
   const fetchRestaurants = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(API_ROUTE);
-      const restaurantData = response.data.data || response.data || [];
-
-      const normalizedRestaurants = restaurantData.map((restaurant: any) => ({
-        _id: restaurant._id || restaurant.id,
-        name: restaurant.name || '',
-        cuisine: restaurant.cuisine || '',
-        address: {
-          street: restaurant.address?.street || '',
-          city: restaurant.address?.city || '',
-          country: restaurant.address?.country || '',
-          postalCode: restaurant.address?.postalCode
-        },
-        contact: {
-          phone: restaurant.contact?.phone || '',
-          email: restaurant.contact?.email
-        }
-      }));
-
-      setRestaurants(normalizedRestaurants);
+      const data = await fetchRestaurantsApi();
+      setRestaurants(data);
     } catch (error) {
-      console.error('Error fetching restaurants:', error);
       toast.error('Failed to load restaurants');
     } finally {
       setIsLoading(false);
@@ -56,72 +41,24 @@ const RestaurantManager: React.FC = () => {
 
   const handleAddRestaurant = async (restaurantData: Omit<Restaurant, '_id'>) => {
     try {
-      const cleanedData = {
-        name: restaurantData.name.trim(),
-        address: {
-          street: restaurantData.address.street.trim(),
-          city: restaurantData.address.city.trim(),
-          country: restaurantData.address.country.trim(),
-          ...(restaurantData.address.postalCode && { postalCode: restaurantData.address.postalCode.trim() })
-        },
-        contact: {
-          phone: restaurantData.contact.phone.trim(),
-          ...(restaurantData.contact.email && { email: restaurantData.contact.email.trim() })
-        }
-      };
-
-      const response = await axios.post(API_ROUTE, cleanedData);
-      console.log('Restaurant added successfully:', response.data);
-
+      await addRestaurant(restaurantData);
       toast.success('Restaurant added successfully!');
       await fetchRestaurants();
       modalClose();
     } catch (error: any) {
-      console.error('Error adding restaurant:', error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        'An error occurred while adding the restaurant';
-      toast.error(errorMessage);
+      toast.error(error.message || 'An error occurred while adding the restaurant');
     }
   };
 
   const handleUpdateRestaurant = async (restaurantData: Omit<Restaurant, '_id'>) => {
     if (!editingRestaurant) return;
-
     try {
-      const cleanedData = {
-        name: restaurantData.name.trim(),
-        address: {
-          street: restaurantData.address.street.trim(),
-          city: restaurantData.address.city.trim(),
-          country: restaurantData.address.country.trim(),
-          ...(restaurantData.address.postalCode && { postalCode: restaurantData.address.postalCode.trim() })
-        },
-        contact: {
-          phone: restaurantData.contact.phone.trim(),
-          ...(restaurantData.contact.email && { email: restaurantData.contact.email.trim() })
-        }
-      };
-
-      const response = await axios.patch(
-        `${API_ROUTE}${editingRestaurant._id}`,
-        cleanedData
-      );
-      console.log('Restaurant updated successfully:', response.data);
-
+      await updateRestaurant(editingRestaurant._id, restaurantData);
       toast.success('Restaurant updated successfully!');
       await fetchRestaurants();
       modalClose();
     } catch (error: any) {
-      console.error('Error updating restaurant:', error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        'An error occurred while updating the restaurant';
-      toast.error(errorMessage);
+      toast.error(error.message || 'An error occurred while updating the restaurant');
     }
   };
 
@@ -132,11 +69,10 @@ const RestaurantManager: React.FC = () => {
 
   const handleDeleteRestaurant = async (id: string) => {
     try {
-      await axios.delete(`${API_ROUTE}${id}`);
+      await deleteRestaurant(id);
       setRestaurants((prev) => prev.filter((r) => r._id !== id));
       toast.success('Restaurant deleted successfully!');
     } catch (error) {
-      console.error('Error deleting restaurant:', error);
       toast.error('Failed to delete restaurant');
     }
   };
