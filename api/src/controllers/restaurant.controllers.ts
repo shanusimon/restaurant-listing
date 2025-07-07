@@ -35,7 +35,6 @@ export const getAllRestaurant = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log("hello APIII")
     const restaurants = await restaurantModel.find().sort({createdAt:-1});
     res.status(200).json({
       message: "Restaurants fetched successfully",
